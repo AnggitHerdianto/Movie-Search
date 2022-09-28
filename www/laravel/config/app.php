@@ -195,6 +195,10 @@ return [
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
 
+        /*
+         * Mogno DB Lib
+         */
+        Jenssegers\Mongodb\MongodbServiceProvider::class,
     ],
 
     /*

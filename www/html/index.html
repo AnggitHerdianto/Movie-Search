@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Movie Search</title>
+        <link href="/node_modules/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+        <link href="/node_modules/fontawesome-free/css/all.css" rel="stylesheet">
+    </head>
+    
+    <body>
+        <div class="container-fluid">
+            <!-- search -->
+            <div class="row justify-content-center" style="margin-top: 100px;">
+                <div class="col-12 col-md-10 col-lg-6">
+                    <div class="card card-sm">
+                        <div class="card-body row no-gutters align-items-center">
+                            <div class="col-auto">
+                                <i class="fas fa-search h4 text-body"></i>
+                            </div>
+                            <div class="col">
+                                <input id="search-input" class="form-control form-control-lg form-control-borderless" type="search" placeholder="Search Movie">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- loading -->
+            <div class="text-center" style="margin-top: 20px;" id="search-loading">
+                <div class="spinner-border" role="status">
+                    <span class="sr-only">Loading...</span>
+                </div>
+            </div>
+
+            <!-- card -->
+            <div class="row justify-content-center" style="margin-top: 20px;" id="search-card"></div>
+
+            <!-- pagination -->
+            <div class="row justify-content-center" style="margin-top: 20px;" id="search-page"></div>
+
+            <!-- modal -->
+            <div class="modal modal-lg" role="dialog" id="detail-modal">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title"></h5>
+                        </div>
+                        
+                        <div class="modal-body"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- js -->
+        <script src="/node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
+        <script src="/node_modules/jquery/dist/jquery.min.js"></script>
+
+        <script>
+            // variabel
+            var pagination = {
+                keyword:'',
+                curent_page:1,
+                total:0,
+                prev:function(){
+                    pagination.keyword =  $('#search-input').val();
+                    pagination.curent_page = pagination.curent_page - 1;
+                    if(pagination.curent_page < 1){
+                        pagination.curent_page = 1;
+                    }
+
+                    search(pagination.keyword, pagination.curent_page);
+                },
+                next:function(){
+                    pagination.keyword =  $('#search-input').val();
+                    pagination.curent_page = pagination.curent_page + 1;
+                    if(pagination.curent_page > Math.ceil(pagination.total / 10)){
+                        pagination.curent_page = Math.ceil(pagination.total / 10);
+                    }
+
+                    search(pagination.keyword, pagination.curent_page);
+                },
+            }
+
+            // detail
+            function detail(id){
+                $('#detail-modal').modal('show');
+                $('#detail-modal .modal-title').html('');
+                $('#detail-modal .modal-body').html('Loading ...');
+
+                $.get(
+                    '/api/detail/' + id,
+                    function(data){
+                        var data = JSON.parse(data);
+
+                        $('#detail-modal .modal-title').html(data.Title);
+
+                        $('#detail-modal .modal-body').html(`
+                            <div class="row">
+                                <div class="col">
+                                    <img src="${data.Poster}">
+                                </div>
+
+                                <div class="col-7">
+                                    <p>Actors       : ${data.Actors}</p>
+                                    <p>Awards       : ${data.Awards}</p>
+                                    <p>BoxOffice    : ${data.BoxOffice}</p>
+                                    <p>Country      : ${data.Country}</p>
+                                    <p>Director     : ${data.Director}</p>
+                                    <p>Genre    : ${data.Genre}</p>
+                                    <p>Language : ${data.Language}</p>
+                                    <p>Rated    : ${data.Rated}</p>
+                                    <p>Released : ${data.Released}</p>
+                                    <p>Runtime  : ${data.Runtime}</p>
+                                    <p>Writer   : ${data.Writer}</p>
+                                    <p>Year     : ${data.Year}</p>
+                                    <p>Rating   : ${data.imdbRating}</p>
+                                    <p>Plot     : ${data.Plot}</p>
+                                </div>
+                            </div>
+                        `);
+                    }
+                );
+            }
+
+            // search
+            function search(keyword, curent_page){
+                $('#search-loading').show();
+                $('#search-card').html('');
+                $('#search-page').html('');
+
+                $.get(
+                    '/api/search/' + keyword + '/' + curent_page,
+                    function(data){
+                        var data = JSON.parse(data);
+                        
+                        $('#search-loading').hide();
+     
+                        if(data.Response == "True"){
+                            pagination.total = data.totalResults;
+                            
+                            var total_page = Math.ceil(pagination.total / 10);
+
+                            $('#search-page').html(`
+                                <nav>
+                                    <ul class="pagination pagination-lg justify-content-center">
+                                        <li class="page-item"><a class="page-link" href="javascript:;" onClick="pagination.prev()">&laquo; Prev</a></li>
+                                        <li class="page-item"><div class="page-link">${pagination.curent_page} / ${total_page}</div></li>
+                                        <li class="page-item"><a class="page-link" href="javascript:;" onClick="pagination.next()">Next &raquo;</a></li>
+                                    </ul>
+                                </nav>
+                            `);
+
+                            $.each(data.Search, function(i, r){
+                                $('#search-card').append(`
+                                    <div class="card" style="width: 18rem; margin:5px 5px 5px 5px;">
+                                        <img class="card-img-top" src="${r.Poster}" alt="${r.Title}">
+                                        
+                                        <div class="card-body">
+                                            <h5 class="card-title">${r.Title}</h5>
+                                            <a href="javascript:;" onClick="detail('${r.imdbID}')" class="btn btn-primary">More ...</a>
+                                        </div>
+                                    </div>
+                                `);
+                            })
+                        }
+                    }
+                )
+                .fail(function(err) {
+                    $('#search-loading').hide();
+                    $('#search-card').html('Error : I think your connection is not working well.');
+                });
+            }
+
+            $(function(){
+                $('#search-loading').hide();
+
+                $('#search-input').keypress(function(event) {
+                    if (event.keyCode == 13) {
+                        pagination.curent_page = 1;
+
+                        // get result
+                        search(
+                            $('#search-input').val(), 
+                            1
+                        );
+                    }
+                });
+            });
+        </script>
+    </body>
+</html>

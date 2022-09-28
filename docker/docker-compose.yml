@@ -12,8 +12,7 @@ services:
       context: ./images/nginx
     restart: 'no'
     depends_on:
-      - klyp_dev_test_pgsql
-      - klyp_dev_test_pgadmin
+      - klyp_dev_test_mongodb
     volumes: 
       - ../www:/var/www
 
@@ -22,7 +21,7 @@ services:
 
       - ./logs/nginx:/var/log/nginx/
     environment: 
-      - TZ=Asia/Jakarta
+      - TZ=Australia/Perth
     ports:
       - "127.0.0.1:8089:80"
     networks:
@@ -35,7 +34,7 @@ services:
       context: ./images/php
     restart: 'no'
     depends_on:
-      - klyp_dev_test_pgsql
+      - klyp_dev_test_mongodb
     volumes:
       - ../www:/var/www
 
@@ -45,7 +44,7 @@ services:
 
       - ./logs/fpm/php:/var/log/fpm
     environment: 
-      - TZ=Asia/Jakarta
+      - TZ=Australia/Perth
     networks:
       - internal
   
@@ -56,7 +55,7 @@ services:
       context: ./images/php
     restart: 'no'
     depends_on:
-      - klyp_dev_test_pgsql
+      - klyp_dev_test_mongodb
     volumes:
       - ../www:/var/www
 
@@ -66,46 +65,23 @@ services:
 
       - ./logs/fpm/php:/var/log/fpm
     environment: 
-      - TZ=Asia/Jakarta
+      - TZ=Australia/Perth
     networks:
       - internal
  
   # pgsql
-  klyp_dev_test_pgsql:
-    container_name: klyp_dev_test_pgsql
+  klyp_dev_test_mongodb:
+    container_name: klyp_dev_test_mongodb
     build: 
-      context: ./images/pgsql
+      context: ./images/mongodb
     restart: 'no'
     volumes: 
-      - ./logs/pgsql:/var/log/postgresql
-      - ./data/pgsql:/var/lib/postgresql/data
+      - ./data/mongodb:/data/db
     environment: 
-      - TZ=Asia/Jakarta
+      - TZ=Australia/Perth
 
-      - POSTGRES_USER=root
-      - POSTGRES_PASSWORD=root
-      - POSTGRES_DB=klyp_dev_test
-    ports:
-      - "127.0.0.1:5489:5432"
+      - MONGO_INITDB_ROOT_USERNAME:root
+      - MONGO_INITDB_ROOT_PASSWORD:root
     networks:
       - internal
   
-  # pgadmin
-  klyp_dev_test_pgadmin:
-    container_name: klyp_dev_test_pgadmin
-    build: 
-      context: ./images/pgadmin
-    restart: 'no'
-    depends_on:
-      - klyp_dev_test_pgsql
-    environment:
-      - TZ=Asia/Jakarta
-
-      - PGADMIN_DEFAULT_EMAIL=root@root.com
-      - PGADMIN_DEFAULT_PASSWORD=root
-      - PGADMIN_LISTEN_PORT=5050
-    volumes:
-      - ./config/pgadmin/servers.json:/pgadmin4/servers.json
-    networks:
-      - internal
-

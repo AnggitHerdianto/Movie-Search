@@ -2,7 +2,7 @@
 FROM nginx:latest
 
 # timezone
-RUN echo "Asia/Jakarta" > /etc/timezone
+RUN echo "Australia/Perth" > /etc/timezone
 RUN rm -f /etc/localtime
 RUN dpkg-reconfigure -f noninteractive tzdata
 

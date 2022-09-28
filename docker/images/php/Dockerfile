@@ -2,7 +2,7 @@
 FROM php:8.1-fpm-bullseye
 
 # timezone
-RUN echo "Asia/Jakarta" > /etc/timezone
+RUN echo "Australia/Perth" > /etc/timezone
 RUN rm -f /etc/localtime
 RUN dpkg-reconfigure -f noninteractive tzdata
 
@@ -60,9 +60,10 @@ RUN pecl install redis --configureoptions '--enable-redis-igbinary="no" --enable
 RUN pecl install memcached --configureoptions '--with-libmemcached-dir="no" --with-zlib-dir="no" with-system-fastlz="no" --enable-memcached-igbinary="no" --enable-memcached-msgpack="no" --enable-memcached-json="no" --enable-memcached-protocol="no" --enable-memcached-sasl="no" --enable-memcached-session="no"'
 RUN pecl install apcu
 RUN pecl install timezonedb
+RUN yes | pecl install mongodb
 
 # enable pecl extension
-RUN docker-php-ext-enable mcrypt redis memcached apcu timezonedb
+RUN docker-php-ext-enable mcrypt redis memcached apcu timezonedb mongodb
 
 # install php extension
 RUN docker-php-ext-install -j$(nproc) \   
@@ -84,7 +85,8 @@ RUN docker-php-ext-install -j$(nproc) \
     exif \
     curl \
     intl \
-    gd
+    gd \
+    opcache
 
 # install php extension : pgsql
 RUN apt-get install -y libpq-dev
@@ -94,8 +96,11 @@ RUN docker-php-ext-configure pgsql -with-pgsql=/usr/local/pgsql
 # config php extension : gd
 RUN docker-php-ext-configure gd --with-freetype=/usr/include/ --with-jpeg=/usr/include/
 
-# install laravel CLI
-RUN composer global require laravel/installer
+# yarn
+RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -
+RUN echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
+RUN apt-get update -y --fix-missing
+RUN apt-get install -y yarn
 
 # hide debian detail
 ARG DEBIAN_FRONTEND=noninteractive
