@@ -58,26 +58,23 @@
         <script>
             // variabel
             var pagination = {
-                keyword:'',
                 curent_page:1,
                 total:0,
                 prev:function(){
-                    pagination.keyword =  $('#search-input').val();
                     pagination.curent_page = pagination.curent_page - 1;
                     if(pagination.curent_page < 1){
                         pagination.curent_page = 1;
                     }
 
-                    search(pagination.keyword, pagination.curent_page);
+                    search($('#search-input').val(), pagination.curent_page);
                 },
                 next:function(){
-                    pagination.keyword =  $('#search-input').val();
                     pagination.curent_page = pagination.curent_page + 1;
                     if(pagination.curent_page > Math.ceil(pagination.total / 10)){
                         pagination.curent_page = Math.ceil(pagination.total / 10);
                     }
 
-                    search(pagination.keyword, pagination.curent_page);
+                    search($('#search-input').val(), pagination.curent_page);
                 },
             }
 
@@ -162,6 +159,8 @@
                                     </div>
                                 `);
                             })
+                        } else {
+                            $('#search-card').html(data.Error);
                         }
                     }
                 )
@@ -179,10 +178,7 @@
                         pagination.curent_page = 1;
 
                         // get result
-                        search(
-                            $('#search-input').val(), 
-                            1
-                        );
+                        search($('#search-input').val(), 1);
                     }
                 });
             });
