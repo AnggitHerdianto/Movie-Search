@@ -1,0 +1,111 @@
+name: klyp_dev_test
+
+networks:
+  internal:
+    external: false
+
+services:
+  # nginx
+  klyp_dev_test_web:
+    container_name: klyp_dev_test_web
+    build: 
+      context: ./images/nginx
+    restart: 'no'
+    depends_on:
+      - klyp_dev_test_pgsql
+      - klyp_dev_test_pgadmin
+    volumes: 
+      - ../www:/var/www
+
+      - ./config/nginx/conf.d:/etc/nginx/conf.d
+      - ./config/nginx/other.conf.d:/etc/nginx/other.conf.d
+
+      - ./logs/nginx:/var/log/nginx/
+    environment: 
+      - TZ=Asia/Jakarta
+    ports:
+      - "127.0.0.1:8089:80"
+    networks:
+      - internal
+
+  # php
+  klyp_dev_test_php:
+    container_name: klyp_dev_test_php
+    build: 
+      context: ./images/php
+    restart: 'no'
+    depends_on:
+      - klyp_dev_test_pgsql
+    volumes:
+      - ../www:/var/www
+
+      - ./config/php/php.development.ini:/usr/local/etc/php/php.ini
+      - ./config/fpm/php-fpm.conf:/usr/local/etc/php-fpm.conf
+      - ./config/fpm/php-fpm.d:/usr/local/etc/php-fpm.d
+
+      - ./logs/fpm/php:/var/log/fpm
+    environment: 
+      - TZ=Asia/Jakarta
+    networks:
+      - internal
+  
+  # php_8080
+  klyp_dev_test_php_8080:
+    container_name: klyp_dev_test_php_8080
+    build: 
+      context: ./images/php
+    restart: 'no'
+    depends_on:
+      - klyp_dev_test_pgsql
+    volumes:
+      - ../www:/var/www
+
+      - ./config/php/php.development.ini:/usr/local/etc/php/php.ini
+      - ./config/fpm/php-fpm.conf:/usr/local/etc/php-fpm.conf
+      - ./config/fpm/php-fpm.d:/usr/local/etc/php-fpm.d
+
+      - ./logs/fpm/php:/var/log/fpm
+    environment: 
+      - TZ=Asia/Jakarta
+    networks:
+      - internal
+ 
+  # pgsql
+  klyp_dev_test_pgsql:
+    container_name: klyp_dev_test_pgsql
+    build: 
+      context: ./images/pgsql
+    restart: 'no'
+    volumes: 
+      - ./logs/pgsql:/var/log/postgresql
+      - ./data/pgsql:/var/lib/postgresql/data
+    environment: 
+      - TZ=Asia/Jakarta
+
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=root
+      - POSTGRES_DB=klyp_dev_test
+    ports:
+      - "127.0.0.1:5489:5432"
+    networks:
+      - internal
+  
+  # pgadmin
+  klyp_dev_test_pgadmin:
+    container_name: klyp_dev_test_pgadmin
+    build: 
+      context: ./images/pgadmin
+    restart: 'no'
+    depends_on:
+      - klyp_dev_test_pgsql
+    environment:
+      - TZ=Asia/Jakarta
+
+      - PGADMIN_DEFAULT_EMAIL=root@root.com
+      - PGADMIN_DEFAULT_PASSWORD=root
+      - PGADMIN_LISTEN_PORT=5050
+    volumes:
+      - ./config/pgadmin/servers.json:/pgadmin4/servers.json
+    networks:
+      - internal
+
