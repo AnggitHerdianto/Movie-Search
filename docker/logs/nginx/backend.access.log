@@ -1,2 +1,0 @@
-127.0.0.1 - - [28/Sep/2022:11:14:46 +0700] "GET / HTTP/1.0" 500 850921 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36"
-127.0.0.1 - - [28/Sep/2022:11:15:24 +0700] "GET / HTTP/1.0" 200 17588 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36"
