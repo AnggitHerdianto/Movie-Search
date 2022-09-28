@@ -2,7 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 
-use App\Http\Controllers\Api;
+use App\Http\Controllers\ApiController;
 
 /*
 |--------------------------------------------------------------------------
@@ -15,6 +15,6 @@ use App\Http\Controllers\Api;
 |
 */
 
-Route::get('/', [Api::class, 'index']);
-Route::get('/search/{search?}/{page?}', [Api::class, 'search']);
-Route::get('/detail/{id?}', [Api::class, 'detail']);
+Route::get('/', [ApiController::class, 'index']);
+Route::get('/search/{search?}/{page?}', [ApiController::class, 'search']);
+Route::get('/detail/{id?}', [ApiController::class, 'detail']);

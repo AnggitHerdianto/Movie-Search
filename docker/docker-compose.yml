@@ -77,11 +77,14 @@ services:
     restart: 'no'
     volumes: 
       - ./data/mongodb:/data/db
+      - ./mongo-entrypoint:/docker-entrypoint-initdb.d
+    command: mongod
     environment: 
       - TZ=Australia/Perth
 
-      - MONGO_INITDB_ROOT_USERNAME:root
-      - MONGO_INITDB_ROOT_PASSWORD:root
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=pass
+      # - MONGO_INITDB_DATABASE=klyp_dev_test
     networks:
       - internal
   
